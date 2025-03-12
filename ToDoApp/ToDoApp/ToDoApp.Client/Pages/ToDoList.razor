@@ -1,8 +1,63 @@
 ﻿@page "/todo"
-@rendermode InteractiveAuto
+@using ToDoApp.Client.Models
+@using ToDoApp.Client.Services
 
-<h3>ToDo List</h3>
+<PageTitle>To Do List</PageTitle>
+
+<h1>ToDo List</h1>
+
+<div class="main-container">
+    <h3>Hello, User</h3>
+
+    <div class="add-title">
+        <input type="text" @bind="newTaskTitle" placeholder="Task Title" /> <br />
+        <textarea @bind="newTaskDescription" placeholder="Task Description" /> <br />
+        <input type="date" @bind="newDueDate" /> <br />
+        <button @onclick="addTask">Add New Task</button>
+    </div>
+
+    <div class="ietm-list">
+        <table>
+            <tr>
+                <th>Task Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>Completion State</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Build App</td>
+                <td>xxxxxxxxxxxxxxxxxx</td>
+                <td></td>
+                <td>To Do</td>
+                <td>
+                    <button>Delete</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
 
 @code {
+    private string newTaskTitle = "";
+    private string newTaskDescription = "";
+    private DateOnly newDueDate;
 
+    private ToDoService toDoService;
+
+    private void addTask()
+    {
+        toDoService.AddTask(new ToDoItem
+            {
+                Title = newTaskTitle,
+                Description = newTaskDescription,
+                DueDate = newDueDate,
+                IsDone = false
+            });
+
+        newTaskTitle = "";
+        newTaskDescription = "";
+    }
 }
