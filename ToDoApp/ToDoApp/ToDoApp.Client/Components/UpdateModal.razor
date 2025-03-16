@@ -1,33 +1,39 @@
 ﻿@using ToDoApp.Client.Models
-<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+
+<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 transition-opacity duration-300"
      style="display: @(Show ? "flex" : "none")">
-    <div class="bg-white p-6 rounded-lg shadow-md w-1/3">
-        <h3 class="text-xl font-bold mb-4">Edit Task</h3>
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <h3 class="text-2xl font-semibold text-gray-900 mb-4">Edit Task</h3>
 
-        <EditForm Model="EditingTask" OnValidSubmit="SaveChanges">
+        <EditForm Model="EditingTask" OnValidSubmit="SaveChanges" class="space-y-4">
             <DataAnnotationsValidator />
-            <ValidationSummary class="text-red-500" />
+            <ValidationSummary class="text-red-500 text-sm" />
 
-            <div class="mb-4">
-                <label class="block font-semibold">Title</label>
-                <input type="text" @bind="EditingTask.Title" class="border p-2 w-full rounded" />
+            <div>
+                <label class="block text-gray-700 font-medium">Title</label>
+                <input type="text" @bind="EditingTask.Title"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:outline-none" />
             </div>
 
-            <div class="mb-4">
-                <label class="block font-semibold">Description</label>
-                <textarea @bind="EditingTask.Description" class="border p-2 w-full rounded"></textarea>
+            <div>
+                <label class="block text-gray-700 font-medium">Description</label>
+                <textarea @bind="EditingTask.Description"
+                          class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:outline-none"></textarea>
             </div>
 
-            <div class="mb-4">
-                <label class="block font-semibold">Due Date</label>
-                <input type="date" @bind="EditingTask.DueDate" class="border p-2 w-full rounded" />
+            <div>
+                <label class="block text-gray-700 font-medium">Due Date</label>
+                <input type="date" @bind="EditingTask.DueDate"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-600 focus:border-green-600 focus:outline-none" />
             </div>
 
             <div class="flex justify-end space-x-2 mt-4">
-                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                <button type="submit"
+                        class="bg-green-700 text-white px-4 py-2 rounded-lg hover:bg-green-800 transition-all shadow-md">
                     Update
                 </button>
-                <button type="button" @onclick="Cancel" class="bg-gray-400 text-white px-4 py-2 rounded">
+                <button type="button" @onclick="Cancel"
+                        class="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition-all">
                     Cancel
                 </button>
             </div>
