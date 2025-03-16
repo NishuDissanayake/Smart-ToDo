@@ -24,6 +24,7 @@ A feature-rich Blazor web application designed to help users manage their daily 
 1. **Clone the repository**:
    ```sh
    git clone https://github.com/NishuDissanayake/Smart-ToDo.git
+   cd Smart-ToDo
    cd ToDoApp
    ```
 2. **Install dependencies**:
