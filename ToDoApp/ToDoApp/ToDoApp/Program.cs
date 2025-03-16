@@ -1,8 +1,10 @@
+using Blazored.LocalStorage;
 using ToDoApp.Client.Services;
 using ToDoApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ToDoService>();
 
 // Add services to the container.
