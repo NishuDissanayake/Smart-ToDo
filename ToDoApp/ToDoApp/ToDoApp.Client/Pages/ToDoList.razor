@@ -56,8 +56,6 @@
     public DateTime newDueDate = DateTime.Now;
     public List<ToDoItem> Tasks { get; set; } = new();
 
-    private ToDoService toDoService;
-
     private void addTask()
     {
         toDoService.AddTask(new ToDoItem
