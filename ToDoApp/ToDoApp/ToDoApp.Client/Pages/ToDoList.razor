@@ -14,21 +14,18 @@
         <DataAnnotationsValidator />
         <ValidationSummary></ValidationSummary>
 
-    <div class="add-title">
+        <div class="add-title">
             <label>Title</label>
             <input type="text" @bind="newTask.Title" placeholder="Task Title" />
-            <ValidationMessage For="@(() => newTask.Title)" />
 
             <label>Description</label>
             <textarea @bind="newTask.Description" placeholder="Task Description"></textarea>
-            <ValidationMessage For="@(() => newTask.Description)" />
 
             <label>Due Date</label>
             <input type="date" @bind="newTask.DueDate" />
-            <ValidationMessage For="@(() => newTask.DueDate)" />
 
             <button type="submit">Add New Task</button>
-    </div>
+        </div>
     </EditForm>
 
     <p>Incomplete Tasks: @toDoService.GetIncompleteTaskCount()</p>
@@ -36,30 +33,30 @@
     <div class="item-list">
         <table>
             <thead>
-            <tr>
-                <th>Task Id</th>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Due Date</th>
-                <th>Completion State</th>
+                <tr>
+                    <th>Task Id</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Due Date</th>
+                    <th>Completion State</th>
                     <th>Actions</th>
-            </tr>
+                </tr>
             </thead>
             <tbody>
                 @foreach (var task in Tasks)
                 {
-            <tr>
+                    <tr>
                         <td>@task.Id</td>
                         <td>@task.Title</td>
                         <td>@task.Description</td>
                         <td>@task.DueDate.ToShortDateString()</td>
-                <td>
+                        <td>
                             <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)" />
-                </td>
+                        </td>
                         <td>
                             <button @onclick="() => deleteTask(task.Id)">Delete</button>
                         </td>
-            </tr>
+                    </tr>
                 }
             </tbody>
         </table>
