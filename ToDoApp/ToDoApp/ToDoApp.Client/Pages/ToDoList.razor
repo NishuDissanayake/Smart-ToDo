@@ -11,8 +11,8 @@
     <h3>Hello, User</h3>
 
     <div class="add-title">
-        <input type="text" @bind="newTaskTitle" placeholder="Task Title" /> <br />
-        <textarea @bind="newTaskDescription" placeholder="Task Description" /> <br />
+        <input type="text" @bind="newTaskTitle" placeholder="Task Title" required /> <br />
+        <textarea @bind="newTaskDescription" placeholder="Task Description"></textarea> <br />
         <input type="date" @bind="newDueDate" /> <br />
         <button @onclick="addTask">Add New Task</button>
     </div>
