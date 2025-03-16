@@ -38,9 +38,9 @@
                         <td>@task.Id</td>
                         <td>@task.Title</td>
                         <td>@task.Description</td>
-                        <td>@task.DueDate</td>
+                        <td>@task.DueDate.ToShortDateString()</td>
                 <td>
-                            <input type="checkbox" @bind="task.IsDone" />
+                            <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)" />
                 </td>
                         <td>
                             <button @onclick="() => deleteTask(task.Id)">Delete</button>
@@ -76,7 +76,7 @@
         toDoService.DeleteTask(taskId);
     }
 
-    public void stateToggle(int taskId)
+    private void toggleCompletion(int taskId)
     {
         toDoService.StateToggle(taskId);
     }
