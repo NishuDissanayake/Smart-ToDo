@@ -5,72 +5,92 @@
 @rendermode InteractiveAuto
 
 @inject ToDoService toDoService
+@inject AuthService authService
+@inject NavigationManager Navigation
 
 <PageTitle>To Do List</PageTitle>
 
-<div class="main-container">
-    <h3>Hello, User</h3>
-
-    <EditForm Model="newTask" OnValidSubmit="addTask">
-        <DataAnnotationsValidator />
-        <ValidationSummary></ValidationSummary>
-
-        <div class="add-title">
-            <label>Title</label>
-            <input type="text" @bind="newTask.Title" placeholder="Task Title" />
-
-            <label>Description</label>
-            <textarea @bind="newTask.Description" placeholder="Task Description"></textarea>
-
-            <label>Due Date</label>
-            <input type="date" @bind="newTask.DueDate" />
-
-            <button type="submit">Add New Task</button>
-        </div>
-    </EditForm>
-
-    <p>Incomplete Tasks: @IncompleteTasksCount</p>
-
-    <label>Filter Tasks:</label>
-    <select @bind="SelectedFilter">
-        <option value="@((int)TaskFilter.All)">All</option>
-        <option value="@((int)TaskFilter.Active)">Active</option>
-        <option value="@((int)TaskFilter.Completed)">Completed</option>
-    </select>
-
-    <div class="item-list">
-        <table>
-            <thead>
-                <tr>
-                    <th>Task Id</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Due Date</th>
-                    <th>Completion State</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var task in Tasks)
-                {
-                    <tr>
-                        <td>@task.Id</td>
-                        <td>@task.Title</td>
-                        <td>@task.Description</td>
-                        <td>@task.DueDate.ToShortDateString()</td>
-                        <td>
-                            <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)" />
-                        </td>
-                        <td>
-                            <button @onclick="() => OpenEditModal(task)">Edit</button>
-                            <button @onclick="() => deleteTask(task.Id)">Delete</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+@if (!authService.IsAuthenticated)
+{
+    <div class="flex flex-col items-center justify-center min-h-screen text-gray-700">
+        <p class="text-lg">You are not logged in.</p>
+        <a href="/login" class="text-green-700 font-semibold hover:underline">Click here to log in</a>
     </div>
-</div>
+}
+else
+{
+    <div class="main-container p-6">
+        <div class="flex flex-col sm:flex-row justify-between items-center mb-4 space-y-2 sm:space-y-0">
+            <h3 class="text-xl font-bold text-green-800">Hello, @authService.CurrentUser!.Username</h3>
+            <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
+                <button class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 w-full sm:w-auto"
+                        @onclick="ShowCreateModal">
+                    + Add Task
+                </button>
+                <button class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 w-full sm:w-auto"
+                        @onclick="Logout">
+                    Sign Out
+                </button>
+            </div>
+        </div>
+
+        <p class="text-gray-600 mb-4">Incomplete Tasks: <strong>@IncompleteTasksCount</strong></p>
+
+        <div class="mb-4">
+            <label class="text-gray-700 font-semibold">Filter Tasks:</label>
+            <select @onchange="OnFilterChanged"
+                    class="border px-2 py-1 rounded w-full sm:w-auto focus:outline-none focus:ring-1 focus:ring-green-800">
+                <option value="All">All</option>
+                <option value="Active">Active</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border p-2">Task Id</th>
+                        <th class="border p-2">Title</th>
+                        <th class="border p-2">Description</th>
+                        <th class="border p-2">Due Date</th>
+                        <th class="border p-2">Completion</th>
+                        <th class="border p-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var task in Tasks)
+                    {
+                        <tr class="border">
+                            <td class="p-2">@task.Id</td>
+                            <td class="p-2">@task.Title</td>
+                            <td class="p-2">@task.Description</td>
+                            <td class="p-2">@task.DueDate.ToShortDateString()</td>
+                            <td class="p-2 text-left">
+                                <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)"
+                                       class="h-5 w-5 cursor-pointer" />
+                            </td>
+                            <td class="p-2">
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 w-full sm:w-auto text-left">
+                                        Edit
+                                    </button>
+                                    <button class="bg-red-800 text-white px-3 py-1 rounded hover:bg-red-600 w-full sm:w-auto text-left">
+                                        Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<CreateModal Show="showCreateModal"
+             OnSave="SaveNewTask"
+             OnCancel="CloseCreateModal" />
 
 <UpdateModal EditingTask="editingTask"
              Show="showEditModal"
@@ -78,56 +98,77 @@
              OnCancel="CloseEditModal" />
 
 @code {
-    private ToDoItem newTask = new();
     private List<ToDoItem> Tasks = new();
     private bool showEditModal = false;
+    private bool showCreateModal = false;
     private ToDoItem editingTask = new();
     private TaskFilter selectedFilter = TaskFilter.All;
+    private string selectedFilterString = "All";
     private int IncompleteTasksCount;
 
-    private TaskFilter SelectedFilter
+    private async Task OnFilterChanged(ChangeEventArgs e)
     {
-        get => selectedFilter;
-        set
+        selectedFilterString = e.Value?.ToString() ?? "All";
+
+        selectedFilter = selectedFilterString switch
         {
-            selectedFilter = value;
-            _ = LoadTasks();
-        }
+            "Active" => TaskFilter.Active,
+            "Completed" => TaskFilter.Completed,
+            _ => TaskFilter.All,
+        };
+
+        await LoadTasks();
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && authService.IsAuthenticated)
         {
             await toDoService.LoadTasksAsync();
             await LoadTasks();
-            StateHasChanged();
         }
     }
 
     private async Task LoadTasks()
     {
+        if (!authService.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
         Tasks = await toDoService.GetFilteredTasksAsync(selectedFilter);
         IncompleteTasksCount = await toDoService.GetIncompleteTaskCountAsync();
         StateHasChanged();
     }
 
-    private async Task addTask()
+    private void ShowCreateModal() => showCreateModal = true;
+    private void CloseCreateModal() => showCreateModal = false;
+
+    private async Task SaveNewTask(ToDoItem newTask)
     {
-        await toDoService.AddTask(newTask);
+        if (!authService.IsAuthenticated) return;
+
+        newTask.UserId = Guid.Parse(authService.CurrentUser!.UserId);
+        await toDoService.AddTaskAsync(newTask);
         await LoadTasks();
-        newTask = new();
+        showCreateModal = false;
     }
 
     private async Task deleteTask(int taskId)
     {
-        await toDoService.DeleteTask(taskId);
+        if (!authService.IsAuthenticated) return;
+
+        await toDoService.DeleteTaskAsync(taskId);
         await LoadTasks();
     }
 
     private async Task toggleCompletion(int taskId)
     {
-        await toDoService.StateToggle(taskId);
+        if (!authService.IsAuthenticated) return;
+
+        await toDoService.StateToggleAsync(taskId);
         await LoadTasks();
     }
 
@@ -139,7 +180,7 @@
 
     private async Task SaveEditedTask(ToDoItem updatedTask)
     {
-        await toDoService.EditTask(updatedTask.Id, updatedTask.Title, updatedTask.Description, updatedTask.DueDate);
+        await toDoService.EditTaskAsync(updatedTask.Id, updatedTask.Title, updatedTask.Description, updatedTask.DueDate);
         showEditModal = false;
         await LoadTasks();
     }
@@ -147,5 +188,11 @@
     private void CloseEditModal()
     {
         showEditModal = false;
+    }
+
+    private async Task Logout()
+    {
+        await authService.LogoutAsync();
+        Navigation.NavigateTo("/login");
     }
 }

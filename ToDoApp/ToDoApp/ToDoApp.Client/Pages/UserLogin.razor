@@ -1,0 +1,62 @@
+﻿@page "/login"
+
+@using ToDoApp.Client.Services
+
+@rendermode InteractiveAuto
+
+@inject NavigationManager navigation
+@inject AuthService authService
+
+<PageTitle>Login</PageTitle>
+
+<div class="flex justify-center items-center min-h-screen bg-white">
+    <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+        <h2 class="text-2xl font-semibold text-gray-900 text-center mb-6">Login</h2>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <p class="text-red-600 mb-4">@errorMessage</p>
+        }
+
+        <EditForm Model="this" FormName="LoginForm" OnValidSubmit="Login" class="space-y-4">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-red-500 text-sm" />
+
+            <div>
+                <label class="block text-gray-700 font-medium">Username</label>
+                <input type="text" @bind="username" @bind:event="oninput"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600" required />
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium">Password</label>
+                <input type="password" @bind="password" @bind:event="oninput"
+                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-green-600" required />
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-green-700 text-white py-2 rounded-lg hover:bg-green-800 transition-all shadow-md">
+                Login
+            </button>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private string errorMessage = "";
+
+    private async Task Login()
+    {
+        var success = await authService.LoginAsync(username, password);
+        if (success)
+        {
+            navigation.NavigateTo("/todo");
+        }
+        else
+        {
+            errorMessage = "Invalid credentials!";
+        }
+    }
+}

@@ -15,27 +15,31 @@ namespace ToDoApp.Client.Services
     {
         private readonly ILogger<ToDoService> _logger;
         private readonly ILocalStorageService _localStorage;
+        private readonly AuthService _authService;
         private List<ToDoItem> Tasks = new();
 
-        public ToDoService(ILogger<ToDoService> logger, ILocalStorageService localStorage)
+        public ToDoService(ILogger<ToDoService> logger, ILocalStorageService localStorage, AuthService authService)
         {
             _logger = logger;
             _localStorage = localStorage;
+            _authService = authService;
         }
 
         /// <summary>
-        /// Load tasks from LocalStorage
+        /// Load tasks from LocalStorage for the logged-in user
         /// </summary>
         public async Task LoadTasksAsync()
         {
-            if (_localStorage is null) return;
+            if (!_authService.IsAuthenticated) return;
 
             try
             {
                 var storedTasks = await _localStorage.GetItemAsync<string>("tasks");
                 if (!string.IsNullOrEmpty(storedTasks))
                 {
-                    Tasks = JsonSerializer.Deserialize<List<ToDoItem>>(storedTasks) ?? new List<ToDoItem>();
+                    var allTasks = JsonSerializer.Deserialize<List<ToDoItem>>(storedTasks) ?? new List<ToDoItem>();
+
+                    Tasks = allTasks.Where(t => t.UserId.ToString() == _authService.CurrentUser!.UserId).ToList();
                 }
                 _logger.LogInformation("Tasks loaded from LocalStorage.");
             }
@@ -46,21 +50,33 @@ namespace ToDoApp.Client.Services
         }
 
         /// <summary>
-        /// Save tasks to LocalStorage
+        /// Save tasks to LocalStorage for the logged-in user
         /// </summary>
         private async Task SaveTasksAsync()
         {
-            await _localStorage.SetItemAsync("tasks", JsonSerializer.Serialize(Tasks));
+            if (!_authService.IsAuthenticated) return;
+
+            var storedTasks = await _localStorage.GetItemAsync<string>("tasks") ?? "[]";
+            var allTasks = JsonSerializer.Deserialize<List<ToDoItem>>(storedTasks) ?? new List<ToDoItem>();
+
+            allTasks.RemoveAll(t => t.UserId.ToString() == _authService.CurrentUser!.UserId);
+            allTasks.AddRange(Tasks);
+
+            await _localStorage.SetItemAsync("tasks", JsonSerializer.Serialize(allTasks));
             _logger.LogInformation("Tasks saved to LocalStorage!");
         }
 
         /// <summary>
         /// Add a new task to the list
         /// </summary>
-        public async Task AddTask(ToDoItem task)
+        public async Task AddTaskAsync(ToDoItem task)
         {
+            if (!_authService.IsAuthenticated) return;
+
             task.Id = Tasks.Any() ? Tasks.Max(t => t.Id) + 1 : 1;
+            task.UserId = Guid.Parse(_authService.CurrentUser!.UserId);
             Tasks.Add(task);
+
             await SaveTasksAsync();
             _logger.LogInformation("New task successfully added to the to do list!");
         }
@@ -68,20 +84,24 @@ namespace ToDoApp.Client.Services
         /// <summary>
         /// Delete a task by ID
         /// </summary>
-        public async Task DeleteTask(int taskId)
+        public async Task DeleteTaskAsync(int taskId)
         {
-            Tasks.RemoveAll(t => t.Id == taskId);
-            await SaveTasksAsync();
-            _logger.LogInformation("Task removed from the to do list!");
+            var task = Tasks.FirstOrDefault(t => t.Id == taskId);
+            if (task != null && task.UserId.ToString() == _authService.CurrentUser!.UserId)
+            {
+                Tasks.Remove(task);
+                await SaveTasksAsync();
+                _logger.LogInformation("Task removed from the to do list!");
+            }
         }
 
         /// <summary>
         /// Toggle the completion state of a task
         /// </summary>
-        public async Task StateToggle(int taskId)
+        public async Task StateToggleAsync(int taskId)
         {
             var task = Tasks.FirstOrDefault(t => t.Id == taskId);
-            if (task != null)
+            if (task != null && task.UserId.ToString() == _authService.CurrentUser!.UserId)
             {
                 task.IsDone = !task.IsDone;
                 await SaveTasksAsync();
@@ -92,10 +112,10 @@ namespace ToDoApp.Client.Services
         /// <summary>
         /// Edit an existing task
         /// </summary>
-        public async Task EditTask(int taskId, string newTitle, string newDescription, DateTime newDueDate)
+        public async Task EditTaskAsync(int taskId, string newTitle, string newDescription, DateTime newDueDate)
         {
             var task = Tasks.FirstOrDefault(t => t.Id == taskId);
-            if (task != null)
+            if (task != null && task.UserId.ToString() == _authService.CurrentUser!.UserId)
             {
                 task.Title = newTitle;
                 task.Description = newDescription;
