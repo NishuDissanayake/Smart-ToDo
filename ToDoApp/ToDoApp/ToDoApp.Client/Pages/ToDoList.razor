@@ -31,6 +31,13 @@
 
     <p>Incomplete Tasks: @toDoService.GetIncompleteTaskCount()</p>
 
+    <label>Filter Tasks:</label>
+    <select @bind="SelectedFilter">
+        <option value="@((int)TaskFilter.All)">All</option>
+        <option value="@((int)TaskFilter.Active)">Active</option>
+        <option value="@((int)TaskFilter.Completed)">Completed</option>
+    </select>
+
     <div class="item-list">
         <table>
             <thead>
@@ -75,6 +82,17 @@
     private List<ToDoItem> Tasks = new();
     private bool showEditModal = false;
     private ToDoItem editingTask = new();
+    private TaskFilter selectedFilter = TaskFilter.All;
+
+    private TaskFilter SelectedFilter
+    {
+        get => selectedFilter;
+        set
+        {
+            selectedFilter = value;
+            LoadTasks();
+        }
+    }
 
     protected override void OnInitialized()
     {
@@ -83,7 +101,7 @@
 
     private void LoadTasks()
     {
-        Tasks = toDoService.GetAllTasks();
+        Tasks = toDoService.GetFilteredTasks(selectedFilter);
     }
 
     private void addTask()

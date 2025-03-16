@@ -2,6 +2,13 @@
 
 namespace ToDoApp.Client.Services
 {
+    public enum TaskFilter
+    {
+        All = 0,
+        Active = 1,
+        Completed = 2
+    }
+
     public class ToDoService
     {
         private readonly ILogger<ToDoService> _logger;
@@ -66,6 +73,19 @@ namespace ToDoApp.Client.Services
         public List<ToDoItem> GetAllTasks()
         {
             return Tasks.ToList();
+        }
+
+        /// <summary>
+        /// Retrieve filtered tasks.
+        /// </summary>
+        public List<ToDoItem> GetFilteredTasks(TaskFilter filter)
+        {
+            return filter switch
+            {
+                TaskFilter.Active => Tasks.Where(t => !t.IsDone).ToList(),
+                TaskFilter.Completed => Tasks.Where(t => t.IsDone).ToList(),
+                _ => Tasks.ToList()
+            };
         }
 
         /// <summary>
