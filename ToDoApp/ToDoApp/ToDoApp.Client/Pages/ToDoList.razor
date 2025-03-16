@@ -66,17 +66,16 @@ else
                             <td class="p-2">@task.Title</td>
                             <td class="p-2">@task.Description</td>
                             <td class="p-2">@task.DueDate.ToShortDateString()</td>
-                            <td class="p-2 text-center">
-                                <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)" />
+                            <td class="p-2 text-left">
+                                <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)"
+                                       class="h-5 w-5 cursor-pointer" />
                             </td>
-                            <td class="p-2 space-x-2">
-                                <div class="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
-                                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 w-full sm:w-auto"
-                                            @onclick="() => OpenEditModal(task)">
+                            <td class="p-2">
+                                <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                                    <button class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 w-full sm:w-auto text-left">
                                         Edit
                                     </button>
-                                    <button class="bg-red-800 text-white px-3 py-1 rounded hover:bg-red-600 w-full sm:w-auto"
-                                            @onclick="() => deleteTask(task.Id)">
+                                    <button class="bg-red-800 text-white px-3 py-1 rounded hover:bg-red-600 w-full sm:w-auto text-left">
                                         Delete
                                     </button>
                                 </div>
@@ -104,16 +103,22 @@ else
     private bool showCreateModal = false;
     private ToDoItem editingTask = new();
     private TaskFilter selectedFilter = TaskFilter.All;
+    private string selectedFilterString = "All";
     private int IncompleteTasksCount;
 
-    private TaskFilter SelectedFilter
+    private async Task OnFilterChanged(ChangeEventArgs e)
     {
-        get => selectedFilter;
-        set
+        selectedFilterString = e.Value?.ToString() ?? "All";
+
+        selectedFilter = selectedFilterString switch
         {
-            selectedFilter = value;
-            _ = LoadTasks();
-        }
+            "Active" => TaskFilter.Active,
+            "Completed" => TaskFilter.Completed,
+            _ => TaskFilter.All,
+        };
+
+        await LoadTasks();
+        StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
