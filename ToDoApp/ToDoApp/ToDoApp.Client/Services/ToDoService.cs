@@ -14,7 +14,7 @@ namespace ToDoApp.Client.Services
         public List<ToDoItem> Tasks { get; set; } = new();
 
         /// <summary>
-        /// Adds a new task to the list.
+        /// Add a new task to the list.
         /// </summary>
         public void AddTask(ToDoItem task)
         {
@@ -23,7 +23,7 @@ namespace ToDoApp.Client.Services
         }
 
         /// <summary>
-        /// Deletes a task by ID.
+        /// Delete a task by ID.
         /// </summary>
         public void DeleteTask(int taskId)
         {
@@ -32,7 +32,7 @@ namespace ToDoApp.Client.Services
         }
 
         /// <summary>
-        /// Toggles the completion state of a task.
+        /// Toggle the completion state of a task.
         /// </summary>
         public void StateToggle(int taskId)
         {
@@ -45,7 +45,7 @@ namespace ToDoApp.Client.Services
         }
 
         /// <summary>
-        /// Edits an existing task.
+        /// Edit an existing task.
         /// </summary>
         public void EditTask(int taskId, string newTitle, string newDescription, DateTime newDueDate)
         {
@@ -60,7 +60,7 @@ namespace ToDoApp.Client.Services
         }
 
         /// <summary>
-        /// Retrieves all tasks.
+        /// Retrieve all tasks.
         /// </summary>
         public List<ToDoItem> GetAllTasks()
         {
@@ -68,7 +68,7 @@ namespace ToDoApp.Client.Services
         }
 
         /// <summary>
-        /// Gets the count of incomplete tasks.
+        /// Get the count of incomplete tasks.
         /// </summary>
         public int GetIncompleteTaskCount()
         {
