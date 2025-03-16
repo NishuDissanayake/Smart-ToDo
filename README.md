@@ -50,7 +50,7 @@ A feature-rich Blazor web application designed to help users manage their daily 
 - **Tailwind CSS**
 - **.NET 9**
 
-## 🧪 Testing (Optional)
+## 🧪 Testing
 ```sh
 dotnet test
 ```
