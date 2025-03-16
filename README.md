@@ -56,7 +56,7 @@ dotnet test
 ```
 
 ## 🎯 Author
-**[Nishani Dissanayake]** - Blazor Developer
+**Nishani Dissanayake**
 
 ---
 
