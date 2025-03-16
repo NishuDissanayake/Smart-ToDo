@@ -1,0 +1,45 @@
+﻿@page "/login"
+@using ToDoApp.Client.Services
+@rendermode InteractiveAuto
+
+@inject NavigationManager navigation
+@inject AuthService authService
+
+<h3>Login</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <p style="color: red;">@errorMessage</p>
+}
+
+<EditForm Model="this" FormName="LoginForm" OnValidSubmit="Login">
+    <DataAnnotationsValidator />
+    <ValidationSummary></ValidationSummary>
+
+    <label>Username</label>
+    <input type="text" @bind="username" @bind:event="oninput" required />
+
+    <label>Password</label>
+    <input type="password" @bind="password" @bind:event="oninput" required />
+
+    <button type="submit">Login</button>
+</EditForm>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private string errorMessage = "";
+
+    private async Task Login()
+    {
+        var success = await authService.LoginAsync(username, password);
+        if (success)
+        {
+            navigation.NavigateTo("/todo");
+        }
+        else
+        {
+            errorMessage = "Invalid credentials!";
+        }
+    }
+}
