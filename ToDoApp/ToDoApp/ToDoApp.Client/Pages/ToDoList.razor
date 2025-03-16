@@ -10,12 +10,26 @@
 <div class="main-container">
     <h3>Hello, User</h3>
 
+    <EditForm Model="newTask" OnValidSubmit="addTask">
+        <DataAnnotationsValidator />
+        <ValidationSummary></ValidationSummary>
+
     <div class="add-title">
-        <input type="text" @bind="newTaskTitle" placeholder="Task Title" required /> <br />
-        <textarea @bind="newTaskDescription" placeholder="Task Description"></textarea> <br />
-        <input type="date" @bind="newDueDate" /> <br />
-        <button @onclick="addTask">Add New Task</button>
+            <label>Title</label>
+            <input type="text" @bind="newTask.Title" placeholder="Task Title" />
+            <ValidationMessage For="@(() => newTask.Title)" />
+
+            <label>Description</label>
+            <textarea @bind="newTask.Description" placeholder="Task Description"></textarea>
+            <ValidationMessage For="@(() => newTask.Description)" />
+
+            <label>Due Date</label>
+            <input type="date" @bind="newTask.DueDate" />
+            <ValidationMessage For="@(() => newTask.DueDate)" />
+
+            <button type="submit">Add New Task</button>
     </div>
+    </EditForm>
 
     <p>Incomplete Tasks: @toDoService.GetIncompleteTaskCount()</p>
 
