@@ -1,0 +1,62 @@
+﻿@using ToDoApp.Client.Models
+<div class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+     style="display: @(Show ? "flex" : "none")">
+    <div class="bg-white p-6 rounded-lg shadow-md w-1/3">
+        <h3 class="text-xl font-bold mb-4 text-green-800">Add New Task</h3>
+
+        <EditForm Model="NewTask" OnValidSubmit="SaveChanges">
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-red-500" />
+
+            <div class="mb-4">
+                <label class="block font-semibold">Title</label>
+                <input type="text" @bind="NewTask.Title" class="border p-2 w-full rounded-lg" />
+            </div>
+
+            <div class="mb-4">
+                <label class="block font-semibold">Description</label>
+                <textarea @bind="NewTask.Description" class="border p-2 w-full rounded-lg"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label class="block font-semibold">Due Date</label>
+                <input type="date" @bind="NewTask.DueDate" class="border p-2 w-full rounded-lg" />
+            </div>
+
+            <div class="flex justify-end space-x-2 mt-4">
+                <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
+                    Add Task
+                </button>
+                <button type="button" @onclick="Cancel" class="bg-gray-400 text-white px-4 py-2 rounded-lg">
+                    Cancel
+                </button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter] public bool Show { get; set; }
+    [Parameter] public EventCallback<ToDoItem> OnSave { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private ToDoItem NewTask = new();
+
+    private async Task SaveChanges()
+    {
+        await OnSave.InvokeAsync(NewTask);
+        ResetForm();
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+        ResetForm();
+    }
+
+    private void ResetForm()
+    {
+        NewTask = new ToDoItem();
+        StateHasChanged();
+    }
+}
