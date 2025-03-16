@@ -1,6 +1,7 @@
 ﻿@page "/todo"
 @using ToDoApp.Client.Models
 @using ToDoApp.Client.Services
+@using ToDoApp.Client.Components
 @rendermode InteractiveAuto
 
 @inject ToDoService toDoService
@@ -54,7 +55,7 @@
                             <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)" />
                         </td>
                         <td>
-                            <button>Edit</button>
+                            <button @onclick="() => OpenEditModal(task)">Edit</button>
                             <button @onclick="() => deleteTask(task.Id)">Delete</button>
                         </td>
                     </tr>
@@ -64,9 +65,16 @@
     </div>
 </div>
 
+<UpdateModal EditingTask="editingTask"
+               Show="showEditModal"
+               OnSave="SaveEditedTask"
+               OnCancel="CloseEditModal" />
+
 @code {
     private ToDoItem newTask = new();
     private List<ToDoItem> Tasks = new();
+    private bool showEditModal = false;
+    private ToDoItem editingTask = new();
 
     protected override void OnInitialized()
     {
@@ -82,7 +90,7 @@
     {
         toDoService.AddTask(newTask);
         LoadTasks();
-        ResetInputs();
+        newTask = new();
     }
 
     private void deleteTask(int taskId)
@@ -97,8 +105,21 @@
         LoadTasks();
     }
 
-    private void ResetInputs()
+    private void OpenEditModal(ToDoItem task)
     {
-        newTask = new();
+        editingTask = task;
+        showEditModal = true;
+    }
+
+    private void SaveEditedTask(ToDoItem updatedTask)
+    {
+        toDoService.EditTask(updatedTask.Id, updatedTask.Title, updatedTask.Description, updatedTask.DueDate);
+        showEditModal = false;
+        LoadTasks();
+    }
+
+    private void CloseEditModal()
+    {
+        showEditModal = false;
     }
 }
