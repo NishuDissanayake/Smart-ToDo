@@ -54,6 +54,7 @@
                             <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)" />
                         </td>
                         <td>
+                            <button>Edit</button>
                             <button @onclick="() => deleteTask(task.Id)">Delete</button>
                         </td>
                     </tr>
