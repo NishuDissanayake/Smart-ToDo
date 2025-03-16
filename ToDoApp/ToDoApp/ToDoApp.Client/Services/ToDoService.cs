@@ -15,12 +15,14 @@ namespace ToDoApp.Client.Services
     {
         private readonly ILogger<ToDoService> _logger;
         private readonly ILocalStorageService _localStorage;
+        private readonly AuthService _authService;
         private List<ToDoItem> Tasks = new();
 
-        public ToDoService(ILogger<ToDoService> logger, ILocalStorageService localStorage)
+        public ToDoService(ILogger<ToDoService> logger, ILocalStorageService localStorage, AuthService authService)
         {
             _logger = logger;
             _localStorage = localStorage;
+            _authService = authService;
         }
 
         /// <summary>
