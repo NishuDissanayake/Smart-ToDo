@@ -53,10 +53,10 @@
 </div>
 
 @code {
-    public string newTaskTitle = "";
-    public string newTaskDescription = "";
-    public DateTime newDueDate = DateTime.Now;
-    public List<ToDoItem> Tasks { get; set; } = new();
+    private string newTaskTitle = "";
+    private string newTaskDescription = "";
+    private DateTime newDueDate = DateTime.Now;
+    private List<ToDoItem> Tasks = new();
 
     private void addTask()
     {
