@@ -43,5 +43,36 @@ namespace ToDoApp.Client.Services
             }
             _logger.LogInformation("Completion state of the task updated!");
         }
+
+        /// <summary>
+        /// Edits an existing task.
+        /// </summary>
+        public void EditTask(int taskId, string newTitle, string newDescription, DateTime newDueDate)
+        {
+            var task = Tasks.FirstOrDefault(t => t.Id == taskId);
+            if (task != null)
+            {
+                task.Title = newTitle;
+                task.Description = newDescription;
+                task.DueDate = newDueDate;
+                _logger.LogInformation("Task updated.");
+            }
+        }
+
+        /// <summary>
+        /// Retrieves all tasks.
+        /// </summary>
+        public List<ToDoItem> GetAllTasks()
+        {
+            return Tasks.ToList();
+        }
+
+        /// <summary>
+        /// Gets the count of incomplete tasks.
+        /// </summary>
+        public int GetIncompleteTaskCount()
+        {
+            return Tasks.Count(t => !t.IsDone);
+        }
     }
 }
