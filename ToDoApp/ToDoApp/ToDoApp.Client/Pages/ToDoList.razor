@@ -67,9 +67,7 @@
 </div>
 
 @code {
-    private string newTaskTitle = "";
-    private string newTaskDescription = "";
-    private DateTime newDueDate = DateTime.Now;
+    private ToDoItem newTask = new();
     private List<ToDoItem> Tasks = new();
 
     protected override void OnInitialized()
@@ -84,16 +82,6 @@
 
     private void addTask()
     {
-        if (string.IsNullOrWhiteSpace(newTaskTitle)) return;
-
-        var newTask = new ToDoItem
-            {
-                Title = newTaskTitle,
-                Description = newTaskDescription,
-            DueDate = newDueDate,
-            IsDone = false
-        };
-
         toDoService.AddTask(newTask);
         LoadTasks();
         ResetInputs();
@@ -113,8 +101,6 @@
 
     private void ResetInputs()
     {
-        newTaskTitle = "";
-        newTaskDescription = "";
-        newDueDate = DateTime.Now;
+        newTask = new();
     }
 }
