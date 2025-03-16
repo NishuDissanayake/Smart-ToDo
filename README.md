@@ -50,11 +50,6 @@ A feature-rich Blazor web application designed to help users manage their daily 
 - **Tailwind CSS**
 - **.NET 9**
 
-## 🧪 Testing
-```sh
-dotnet test
-```
-
 ## 🎯 Author
 **Nishani Dissanayake**
 
