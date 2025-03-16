@@ -1,4 +1,6 @@
-﻿using ToDoApp.Client.Models;
+﻿using Blazored.LocalStorage;
+using System.Text.Json;
+using ToDoApp.Client.Models;
 
 namespace ToDoApp.Client.Services
 {
@@ -12,10 +14,13 @@ namespace ToDoApp.Client.Services
     public class ToDoService
     {
         private readonly ILogger<ToDoService> _logger;
+        private readonly ILocalStorageService _localStorage;
+        private List<ToDoItem> Tasks = new();
 
-        public ToDoService(ILogger<ToDoService> logger)
+        public ToDoService(ILogger<ToDoService> logger, ILocalStorageService localStorage)
         {
             _logger = logger;
+            _localStorage = localStorage;
         }
 
         public List<ToDoItem> Tasks { get; set; } = new();
