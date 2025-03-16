@@ -70,24 +70,37 @@
 
     private void addTask()
     {
-        toDoService.AddTask(new ToDoItem
+        if (string.IsNullOrWhiteSpace(newTaskTitle)) return;
+
+        var newTask = new ToDoItem
             {
                 Title = newTaskTitle,
                 Description = newTaskDescription,
-                DueDate = newDueDate
-            });
+            DueDate = newDueDate,
+            IsDone = false
+        };
 
-        newTaskTitle = "";
-        newTaskDescription = "";
+        toDoService.AddTask(newTask);
+        LoadTasks();
+        ResetInputs();
     }
 
-    public void deleteTask(int taskId)
+    private void deleteTask(int taskId)
     {
         toDoService.DeleteTask(taskId);
+        LoadTasks();
     }
 
     private void toggleCompletion(int taskId)
     {
         toDoService.StateToggle(taskId);
+        LoadTasks();
+    }
+
+    private void ResetInputs()
+    {
+        newTaskTitle = "";
+        newTaskDescription = "";
+        newDueDate = DateTime.Now;
     }
 }
