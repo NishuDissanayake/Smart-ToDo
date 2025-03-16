@@ -28,12 +28,21 @@ namespace ToDoApp.Client.Services
         /// </summary>
         public async Task LoadTasksAsync()
         {
-            var storedTasks = await _localStorage.GetItemAsync<string>("tasks");
-            if (!string.IsNullOrEmpty(storedTasks))
+            if (_localStorage is null) return;
+
+            try
             {
-                Tasks = JsonSerializer.Deserialize<List<ToDoItem>>(storedTasks) ?? new List<ToDoItem>();
+                var storedTasks = await _localStorage.GetItemAsync<string>("tasks");
+                if (!string.IsNullOrEmpty(storedTasks))
+                {
+                    Tasks = JsonSerializer.Deserialize<List<ToDoItem>>(storedTasks) ?? new List<ToDoItem>();
+                }
+                _logger.LogInformation("Tasks loaded from LocalStorage.");
             }
-            _logger.LogInformation("Tasks loaded from LocalStorage.");
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error loading tasks from LocalStorage: {ex.Message}");
+            }
         }
 
         /// <summary>
