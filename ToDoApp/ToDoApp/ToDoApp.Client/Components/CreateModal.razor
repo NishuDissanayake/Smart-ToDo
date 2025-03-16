@@ -42,6 +42,21 @@
 
     private ToDoItem NewTask = new();
 
-    private async Task SaveChanges() => await OnSave.InvokeAsync(NewTask);
-    private async Task Cancel() => await OnCancel.InvokeAsync();
+    private async Task SaveChanges()
+    {
+        await OnSave.InvokeAsync(NewTask);
+        ResetForm();
+    }
+
+    private async Task Cancel()
+    {
+        await OnCancel.InvokeAsync();
+        ResetForm();
+    }
+
+    private void ResetForm()
+    {
+        NewTask = new ToDoItem();
+        StateHasChanged();
+    }
 }
