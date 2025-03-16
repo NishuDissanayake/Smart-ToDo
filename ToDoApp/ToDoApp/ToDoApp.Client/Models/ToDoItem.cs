@@ -9,9 +9,8 @@ namespace ToDoApp.Client.Models
         [Required]
         [StringLength(100, ErrorMessage = "Title cannot exceed 100 characters.")]
         public string Title { get; set; } = string.Empty;
-        [Required]
         public string Description { get; set; } = string.Empty;
-        public DateTime DueDate { get; set; }
+        public DateTime DueDate { get; set; } = DateTime.Now;
         public bool IsDone { get; set; } = false;
     }
 }
