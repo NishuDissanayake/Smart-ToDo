@@ -1,0 +1,81 @@
+﻿@page "/todo"
+@using ToDoApp.Client.Models
+@using ToDoApp.Client.Services
+@rendermode InteractiveAuto
+
+@inject ToDoService toDoService
+
+<PageTitle>To Do List</PageTitle>
+
+<div class="main-container">
+    <h3>Hello, User</h3>
+
+    <div class="add-title">
+        <input type="text" @bind="newTaskTitle" placeholder="Task Title" /> <br />
+        <textarea @bind="newTaskDescription" placeholder="Task Description" /> <br />
+        <input type="date" @bind="newDueDate" /> <br />
+        <button @onclick="addTask">Add New Task</button>
+    </div>
+
+    <div class="ietm-list">
+        <table>
+            <thead>
+            <tr>
+                <th>Task Id</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Due Date</th>
+                <th>Completion State</th>
+                    <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Tasks)
+                {
+            <tr>
+                        <td>@task.Id</td>
+                        <td>@task.Title</td>
+                        <td>@task.Description</td>
+                        <td>@task.DueDate</td>
+                <td>
+                            <input type="checkbox" @bind="task.IsDone" />
+                </td>
+                        <td>
+                            <button @onclick="() => deleteTask(task.Id)">Delete</button>
+                        </td>
+            </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    public string newTaskTitle = "";
+    public string newTaskDescription = "";
+    public DateTime newDueDate = DateTime.Now;
+    public List<ToDoItem> Tasks { get; set; } = new();
+
+    private void addTask()
+    {
+        toDoService.AddTask(new ToDoItem
+            {
+                Title = newTaskTitle,
+                Description = newTaskDescription,
+                DueDate = newDueDate
+            });
+
+        newTaskTitle = "";
+        newTaskDescription = "";
+    }
+
+    public void deleteTask(int taskId)
+    {
+        toDoService.DeleteTask(taskId);
+    }
+
+    public void stateToggle(int taskId)
+    {
+        toDoService.StateToggle(taskId);
+    }
+}
