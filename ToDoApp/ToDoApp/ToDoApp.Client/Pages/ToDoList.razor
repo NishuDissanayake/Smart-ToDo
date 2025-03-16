@@ -17,7 +17,9 @@
         <button @onclick="addTask">Add New Task</button>
     </div>
 
-    <div class="ietm-list">
+    <p>Incomplete Tasks: @toDoService.GetIncompleteTaskCount()</p>
+
+    <div class="item-list">
         <table>
             <thead>
             <tr>
