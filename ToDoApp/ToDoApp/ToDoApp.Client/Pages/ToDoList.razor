@@ -29,7 +29,14 @@
         </div>
     </EditForm>
 
-    <p>Incomplete Tasks: @toDoService.GetIncompleteTaskCount()</p>
+    <p>Incomplete Tasks: @IncompleteTasksCount</p>
+
+    <label>Filter Tasks:</label>
+    <select @bind="SelectedFilter">
+        <option value="@((int)TaskFilter.All)">All</option>
+        <option value="@((int)TaskFilter.Active)">Active</option>
+        <option value="@((int)TaskFilter.Completed)">Completed</option>
+    </select>
 
     <div class="item-list">
         <table>
@@ -66,43 +73,62 @@
 </div>
 
 <UpdateModal EditingTask="editingTask"
-               Show="showEditModal"
-               OnSave="SaveEditedTask"
-               OnCancel="CloseEditModal" />
+             Show="showEditModal"
+             OnSave="SaveEditedTask"
+             OnCancel="CloseEditModal" />
 
 @code {
     private ToDoItem newTask = new();
     private List<ToDoItem> Tasks = new();
     private bool showEditModal = false;
     private ToDoItem editingTask = new();
+    private TaskFilter selectedFilter = TaskFilter.All;
+    private int IncompleteTasksCount;
 
-    protected override void OnInitialized()
+    private TaskFilter SelectedFilter
     {
-        LoadTasks();
+        get => selectedFilter;
+        set
+        {
+            selectedFilter = value;
+            _ = LoadTasks();
+        }
     }
 
-    private void LoadTasks()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        Tasks = toDoService.GetAllTasks();
+        if (firstRender)
+        {
+            await toDoService.LoadTasksAsync();
+            await LoadTasks();
+            StateHasChanged();
+        }
     }
 
-    private void addTask()
+    private async Task LoadTasks()
     {
-        toDoService.AddTask(newTask);
-        LoadTasks();
+        Tasks = await toDoService.GetFilteredTasksAsync(selectedFilter);
+        IncompleteTasksCount = await toDoService.GetIncompleteTaskCountAsync();
+        StateHasChanged();
+    }
+
+    private async Task addTask()
+    {
+        await toDoService.AddTask(newTask);
+        await LoadTasks();
         newTask = new();
     }
 
-    private void deleteTask(int taskId)
+    private async Task deleteTask(int taskId)
     {
-        toDoService.DeleteTask(taskId);
-        LoadTasks();
+        await toDoService.DeleteTask(taskId);
+        await LoadTasks();
     }
 
-    private void toggleCompletion(int taskId)
+    private async Task toggleCompletion(int taskId)
     {
-        toDoService.StateToggle(taskId);
-        LoadTasks();
+        await toDoService.StateToggle(taskId);
+        await LoadTasks();
     }
 
     private void OpenEditModal(ToDoItem task)
@@ -111,11 +137,11 @@
         showEditModal = true;
     }
 
-    private void SaveEditedTask(ToDoItem updatedTask)
+    private async Task SaveEditedTask(ToDoItem updatedTask)
     {
-        toDoService.EditTask(updatedTask.Id, updatedTask.Title, updatedTask.Description, updatedTask.DueDate);
+        await toDoService.EditTask(updatedTask.Id, updatedTask.Title, updatedTask.Description, updatedTask.DueDate);
         showEditModal = false;
-        LoadTasks();
+        await LoadTasks();
     }
 
     private void CloseEditModal()
