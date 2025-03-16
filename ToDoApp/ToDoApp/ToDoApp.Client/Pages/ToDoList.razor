@@ -5,72 +5,83 @@
 @rendermode InteractiveAuto
 
 @inject ToDoService toDoService
+@inject AuthService authService
+@inject NavigationManager Navigation
 
 <PageTitle>To Do List</PageTitle>
 
-<div class="main-container">
-    <h3>Hello, User</h3>
+@if (!authService.IsAuthenticated)
+{
+    <p>You are not logged in. <a href="/login">Click here to log in</a>.</p>
+}
+else
+{
+    <div class="main-container">
+        <h3>Hello, @authService.CurrentUser!.Username</h3>
 
-    <EditForm Model="newTask" OnValidSubmit="addTask">
-        <DataAnnotationsValidator />
-        <ValidationSummary></ValidationSummary>
+        <EditForm Model="newTask" OnValidSubmit="addTask">
+            <DataAnnotationsValidator />
+            <ValidationSummary></ValidationSummary>
 
-        <div class="add-title">
-            <label>Title</label>
+            <div class="add-title">
+                <label>Title</label>
             <input type="text" @bind="newTask.Title" placeholder="Task Title" />
 
-            <label>Description</label>
+                <label>Description</label>
             <textarea @bind="newTask.Description" placeholder="Task Description"></textarea>
 
-            <label>Due Date</label>
+                <label>Due Date</label>
             <input type="date" @bind="newTask.DueDate" />
 
-            <button type="submit">Add New Task</button>
-        </div>
-    </EditForm>
+                <button type="submit">Add New Task</button>
+            </div>
+        </EditForm>
 
-    <p>Incomplete Tasks: @IncompleteTasksCount</p>
+        <p>Incomplete Tasks: @IncompleteTasksCount</p>
 
-    <label>Filter Tasks:</label>
-    <select @bind="SelectedFilter">
-        <option value="@((int)TaskFilter.All)">All</option>
-        <option value="@((int)TaskFilter.Active)">Active</option>
-        <option value="@((int)TaskFilter.Completed)">Completed</option>
-    </select>
+        <label>Filter Tasks:</label>
+        <select @bind="SelectedFilter">
+            <option value="@((int)TaskFilter.All)">All</option>
+            <option value="@((int)TaskFilter.Active)">Active</option>
+            <option value="@((int)TaskFilter.Completed)">Completed</option>
+        </select>
 
-    <div class="item-list">
-        <table>
-            <thead>
-                <tr>
-                    <th>Task Id</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Due Date</th>
-                    <th>Completion State</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var task in Tasks)
-                {
+        <div class="item-list">
+            <table>
+                <thead>
                     <tr>
-                        <td>@task.Id</td>
-                        <td>@task.Title</td>
-                        <td>@task.Description</td>
-                        <td>@task.DueDate.ToShortDateString()</td>
-                        <td>
-                            <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)" />
-                        </td>
-                        <td>
-                            <button @onclick="() => OpenEditModal(task)">Edit</button>
-                            <button @onclick="() => deleteTask(task.Id)">Delete</button>
-                        </td>
+                        <th>Task Id</th>
+                        <th>Title</th>
+                        <th>Description</th>
+                        <th>Due Date</th>
+                        <th>Completion State</th>
+                        <th>Actions</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var task in Tasks)
+                    {
+                        <tr>
+                            <td>@task.Id</td>
+                            <td>@task.Title</td>
+                            <td>@task.Description</td>
+                            <td>@task.DueDate.ToShortDateString()</td>
+                            <td>
+                                <input type="checkbox" @bind="task.IsDone" @oninput="() => toggleCompletion(task.Id)" />
+                            </td>
+                            <td>
+                                <button @onclick="() => OpenEditModal(task)">Edit</button>
+                                <button @onclick="() => deleteTask(task.Id)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <button @onclick="Logout">Sign Out</button>
     </div>
-</div>
+}
 
 <UpdateModal EditingTask="editingTask"
              Show="showEditModal"
@@ -97,16 +108,21 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender && authService.IsAuthenticated)
         {
             await toDoService.LoadTasksAsync();
             await LoadTasks();
-            StateHasChanged();
         }
     }
 
     private async Task LoadTasks()
     {
+        if (!authService.IsAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+            return;
+        }
+
         Tasks = await toDoService.GetFilteredTasksAsync(selectedFilter);
         IncompleteTasksCount = await toDoService.GetIncompleteTaskCountAsync();
         StateHasChanged();
@@ -114,20 +130,27 @@
 
     private async Task addTask()
     {
-        await toDoService.AddTask(newTask);
+        if (!authService.IsAuthenticated) return;
+
+        newTask.UserId = Guid.Parse(authService.CurrentUser!.UserId); // ✅ Ensure task is linked to the user
+        await toDoService.AddTaskAsync(newTask);
         await LoadTasks();
         newTask = new();
     }
 
     private async Task deleteTask(int taskId)
     {
-        await toDoService.DeleteTask(taskId);
+        if (!authService.IsAuthenticated) return;
+
+        await toDoService.DeleteTaskAsync(taskId);
         await LoadTasks();
     }
 
     private async Task toggleCompletion(int taskId)
     {
-        await toDoService.StateToggle(taskId);
+        if (!authService.IsAuthenticated) return;
+
+        await toDoService.StateToggleAsync(taskId);
         await LoadTasks();
     }
 
@@ -139,7 +162,7 @@
 
     private async Task SaveEditedTask(ToDoItem updatedTask)
     {
-        await toDoService.EditTask(updatedTask.Id, updatedTask.Title, updatedTask.Description, updatedTask.DueDate);
+        await toDoService.EditTaskAsync(updatedTask.Id, updatedTask.Title, updatedTask.Description, updatedTask.DueDate);
         showEditModal = false;
         await LoadTasks();
     }
@@ -147,5 +170,11 @@
     private void CloseEditModal()
     {
         showEditModal = false;
+    }
+
+    private async Task Logout()
+    {
+        await authService.LogoutAsync();
+        Navigation.NavigateTo("/login");
     }
 }
