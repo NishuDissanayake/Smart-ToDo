@@ -58,6 +58,16 @@
     private DateTime newDueDate = DateTime.Now;
     private List<ToDoItem> Tasks = new();
 
+    protected override void OnInitialized()
+    {
+        LoadTasks();
+    }
+
+    private void LoadTasks()
+    {
+        Tasks = toDoService.GetAllTasks();
+    }
+
     private void addTask()
     {
         toDoService.AddTask(new ToDoItem
