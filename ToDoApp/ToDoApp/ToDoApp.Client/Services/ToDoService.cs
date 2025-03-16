@@ -5,6 +5,12 @@ namespace ToDoApp.Client.Services
     public class ToDoService
     {
         private readonly ILogger<ToDoService> _logger;
+
+        public ToDoService(ILogger<ToDoService> logger)
+        {
+            _logger = logger;
+        }
+
         public List<ToDoItem> Tasks { get; set; } = new();
 
         public void AddTask(ToDoItem task)
