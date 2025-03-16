@@ -18,6 +18,7 @@ namespace ToDoApp.Client.Services
         /// </summary>
         public void AddTask(ToDoItem task)
         {
+            task.Id = Tasks.Any() ? Tasks.Max(t => t.Id) + 1 : 1;
             Tasks.Add(task);
             _logger.LogInformation("New task successfully added to the to do list!");
         }
