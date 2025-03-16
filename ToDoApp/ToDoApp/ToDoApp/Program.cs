@@ -1,7 +1,9 @@
-using ToDoApp.Client.Pages;
+using ToDoApp.Client.Services;
 using ToDoApp.Components;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<ToDoService>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
