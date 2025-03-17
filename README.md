@@ -24,8 +24,7 @@ A feature-rich Blazor web application designed to help users manage their daily 
 1. **Clone the repository**:
    ```sh
    git clone https://github.com/NishuDissanayake/Smart-ToDo.git
-   cd Smart-ToDo
-   cd ToDoApp
+   cd Smart-ToDo/src/ToDoApp/ToDoApp/ToDoApp
    ```
 2. **Install dependencies**:
    ```sh
@@ -35,7 +34,7 @@ A feature-rich Blazor web application designed to help users manage their daily 
    ```sh
    dotnet run
    ```
-4. **Open in browser**: [https://localhost:5001](https://localhost:5001)
+4. **Open in browser**: [http://localhost:5203/](http://localhost:5203/)
 
 ## 👤 User Credentials
 | Username | Password |
